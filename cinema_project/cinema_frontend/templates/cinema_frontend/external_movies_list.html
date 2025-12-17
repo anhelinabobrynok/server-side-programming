@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Список пацієнтів (API)</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            background-color: #f9f9f9; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card h3 { margin-top: 0; color: #333; }
+        .info-row { margin: 5px 0; color: #555; }
+        
+        .btn-delete { 
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            margin-top: 10px;
+        }
+        .btn-delete:hover { background-color: #c82333; }
+        
+        .btn-back { text-decoration: none; color: #007bff; font-weight: bold; }
+        .error { color: red; border: 1px solid red; padding: 10px; background-color: #ffe6e6; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Список пацієнтів (з бази колеги)</h1>
+        <a href="/" class="btn-back">← На головну</a>
+    </div>
+
+    {% if error %}
+        <div class="error">
+            {{ error }}
+            <br>
+            <small>Переконайтесь, що сервер колеги запущено на порту 8001.</small>
+        </div>
+    {% endif %}
+
+    <div class="list">
+        {% for item in items %}
+            <div class="card">
+                <h3>👤 {{ item.name }}</h3>
+                
+                <div class="info-row"><strong>📧 Email:</strong> {{ item.email }}</div>
+                <div class="info-row"><strong>📱 Телефон:</strong> {{ item.phone_number }}</div>
+                <div class="info-row"><small>ID запису: {{ item.id }}</small></div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <input type="hidden" name="endpoint" value="{{ endpoint }}">
+                    
+                    <button type="submit" class="btn-delete" onclick="return confirm('Ви точно хочете видалити пацієнта {{ item.name }}?');">
+                        Видалити (API)
+                    </button>
+                </form>
+            </div>
+        {% empty %}
+            {% if not error %}
+                <p>Список порожній. Додайте пацієнтів через адмінку колеги (порт 8001).</p>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+</body>
+</html>
