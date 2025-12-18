@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Аналіз продуктивності (Parallel Computing)</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <button onclick="location.reload();" class="btn btn-sm btn-outline-primary">
+                Запустити тест знову
+            </button>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% else %}
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Найкращий метод</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ performance_stats.best_method }}</h5>
+                    <p class="card-text">Час виконання: <strong>{{ performance_stats.best_time }} сек</strong></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Параметри системи</div>
+                <div class="card-body">
+                    <p class="card-text">CPU Cores: {{ performance_stats.cpu_cores }}</p>
+                    <p class="card-text">Елементів оброблено: {{ performance_stats.total_items }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Chunk Processing Speedup</div>
+                <div class="card-body">
+                    <h3 class="card-title text-success">x{{ performance_stats.chunk_speedup }}</h3>
+                    <p class="card-text">Seq: {{ performance_stats.chunk_seq_time }}s vs Par: {{ performance_stats.chunk_par_time }}s</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Метод обробки</th>
+                    <th>Час виконання (сек)</th>
+                    <th>Прискорення (Speedup)</th>
+                    <th>Візуалізація</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for method in methods_comparison %}
+                <tr>
+                    <td>{{ method.method }}</td>
+                    <td>{{ method.time}}</td>
+                    <td>
+                        {% if method.speedup > 1.0 %}
+                            <span class="badge bg-success">x{{ method.speedup }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">x{{ method.speedup }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="width: 40%;">
+                        <div class="progress" style="height: 20px;">
+                            {% widthratio method.time performance_stats.sequential_time 100 as width_val %}
+                            <div class="progress-bar {% if method.speedup > 1 %}bg-success{% else %}bg-warning{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ width_val }}%;" 
+                                 aria-valuenow="{{ width_val }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="alert alert-info mt-3">
+        <strong>Примітка:</strong> Тест симулює навантаження (sleep 0.01s) для кожного запиту до бази даних жанрів.
+        Threading ефективний для I/O операцій (DB calls), Multiprocessing - для CPU-інтенсивних задач.
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}

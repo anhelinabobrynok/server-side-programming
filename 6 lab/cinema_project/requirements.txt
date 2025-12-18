@@ -1,0 +1,9 @@
+Django>=4.2.0
+djangorestframework>=3.14.0
+pandas>=2.0.0
+plotly>=5.17.0
+bokeh>=3.3.0
+psycopg2-binary>=2.9.0  
+mysqlclient>=2.2.0  
+numpy>=1.24.0
+python-dateutil>=2.8.2
